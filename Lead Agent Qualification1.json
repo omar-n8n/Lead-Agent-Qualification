@@ -43,71 +43,12 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.6,
       "position": [
-        -864,
+        -928,
         -96
       ],
       "id": "e0b231e7-6a5f-40b5-b00f-518ec87a12cd",
       "name": "On form submission",
       "webhookId": "0017a5d6-4705-4e4b-a08d-08d016d66f6c"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "9852353e-11ba-466a-9584-73d95452a591",
-              "name": "Name",
-              "value": "={{ $json['your name'] }}",
-              "type": "string"
-            },
-            {
-              "id": "dcfc6e76-58a3-4261-b926-c157a1ab3587",
-              "name": "Email",
-              "value": "={{ $json['Your Email'] }}",
-              "type": "string"
-            },
-            {
-              "id": "fd23fd2a-0db6-462f-a064-ee3804724354",
-              "name": "problem",
-              "value": "={{ $json['Tell us about your problem'] }}",
-              "type": "string"
-            },
-            {
-              "id": "8c7c2399-14db-42b1-9593-885f1a02cd44",
-              "name": "Time",
-              "value": "={{ $json['When are you looking to start'] }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -720,
-        -96
-      ],
-      "id": "824085eb-e17d-4840-90d0-b87a54e685cd",
-      "name": "Edit Fields"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $json.problem }}",
-        "hasOutputParser": true,
-        "options": {
-          "systemMessage": "=You are an AI Lead Qualification Agent.\n\nAnalyze the lead information submitted through the form:\n\n* Name\n* Email\n* Problem: The problem or service the lead needs help with.\n* Time: When the lead wants to start or needs the solution.\n\nYour job is to evaluate the lead based ONLY on the information provided.\n\nScore the lead from 0 to 100 using these factors:\n\n1. Problem Clarity:\n\n* Clear and specific business problem: high score\n* General or unclear problem: medium score\n* No clear problem: low score\n\n2. Buying Intent:\n\n* Clearly wants to solve the problem or is ready to move forward: high score\n* Interested but not fully committed: medium score\n* Just asking or exploring with no clear intent: low score\n\n3. Timeline:\n\n* Wants to start immediately or very soon: high score\n* Wants to start later: medium score\n* No clear timeline: low score\n\n4. Business Relevance:\n\n* The problem is highly relevant to the services offered: high score\n* Partially relevant: medium score\n* Not relevant: low score\n\nQualification rules:\n\n* HOT: Score 75–100\n* WARM: Score 45–74\n* COLD: Score 0–44\n\nImportant:\n\n* Do not invent information that the lead did not provide.\n* Do not penalize the lead for not providing a budget because the form does not ask for a budget.\n* If the timeline is unclear, mention that it is unclear.\n* Base the score on actual buying intent, problem clarity, urgency, and business relevance.\n* Be consistent when assigning scores.\n\nReturn ONLY valid JSON using exactly this structure:\n\n{\n\"lead_score\": 0,\n\"qualification\": \"HOT\",\n\"buying_intent\": \"High\",\n\"key_reason\": \"Brief explanation of the score and qualification.\",\n\"recommended_action\": \"The recommended next step for the sales team.\"\n}\n\n\nReturn ONLY a valid JSON object.\nDo not use Markdown.\nDo not use code blocks.\nDo not add any text before or after the JSON.\nFollow the exact output structure required by the Structured Output Parser."
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        -576,
-        -96
-      ],
-      "id": "6d48ba95-b095-4d27-b9c6-ec215598863d",
-      "name": "AI Agent"
     },
     {
       "parameters": {
@@ -281,7 +222,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -144,
+        -160,
         -96
       ],
       "id": "088b6856-f687-4765-ae08-1a5d0406a5c7",
@@ -292,6 +233,134 @@
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        80
+      ],
+      "id": "b97c345e-5dec-4759-a4f5-7ac976aeb4c7",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "BIXCmLqUyzEJqfHK",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Prepare Ai Respone').item.json.Email }}",
+        "subject": "=We've received your request, {{ $('Prepare Ai Respone').item.json.Name }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        -96
+      ],
+      "id": "3c3c6c93-39d2-46a1-8681-24376ec84ef2",
+      "name": "Send a message",
+      "webhookId": "d1878189-0cd3-4bbc-a773-79e9ce8bb90e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "zDEymUvsZ6kXrFAG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.problem }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI Lead Qualification Agent.\n\nAnalyze the lead information submitted through the form:\n\n* Name\n* Email\n* Problem: The problem or service the lead needs help with.\n* Time: When the lead wants to start or needs the solution.\n\nYour job is to evaluate the lead based ONLY on the information provided.\n\nScore the lead from 0 to 100 using these factors:\n\n1. Problem Clarity:\n\n* Clear and specific business problem: high score\n* General or unclear problem: medium score\n* No clear problem: low score\n\n2. Buying Intent:\n\n* Clearly wants to solve the problem or is ready to move forward: high score\n* Interested but not fully committed: medium score\n* Just asking or exploring with no clear intent: low score\n\n3. Timeline:\n\n* Wants to start immediately or very soon: high score\n* Wants to start later: medium score\n* No clear timeline: low score\n\n4. Business Relevance:\n\n* The problem is highly relevant to the services offered: high score\n* Partially relevant: medium score\n* Not relevant: low score\n\nQualification rules:\n\n* HOT: Score 75–100\n* WARM: Score 45–74\n* COLD: Score 0–44\n\nImportant:\n\n* Do not invent information that the lead did not provide.\n* Do not penalize the lead for not providing a budget because the form does not ask for a budget.\n* If the timeline is unclear, mention that it is unclear.\n* Base the score on actual buying intent, problem clarity, urgency, and business relevance.\n* Be consistent when assigning scores.\n\nReturn ONLY valid JSON using exactly this structure:\n\n{\n\"lead_score\": 0,\n\"qualification\": \"HOT\",\n\"buying_intent\": \"High\",\n\"key_reason\": \"Brief explanation of the score and qualification.\",\n\"recommended_action\": \"The recommended next step for the sales team.\"\n}\n\n\nReturn ONLY a valid JSON object.\nDo not use Markdown.\nDo not use code blocks.\nDo not add any text before or after the JSON.\nFollow the exact output structure required by the Structured Output Parser."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -624,
+        -96
+      ],
+      "id": "6d48ba95-b095-4d27-b9c6-ec215598863d",
+      "name": "Lead Qualification Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write an email response to this lead based on the following information:\n\nName: {{ $json['         Name'] }}\nEmail: {{ $json['          Email'] }}\nProblem: {{ $json['                                    Problem'] }}\nTime: {{ $json['          Time'] }}\nQualification: {{ $json['    Qualification'] }}\nLead Score: {{ $json['    Lead Score'] }}\nBuying Intent: {{ $json['   Buying Intent'] }}\nKey Reason: {{ $json['  Key Reason'] }}\nEmail-Subject: {{ $json['Email-Subject'] }}",
+        "options": {
+          "systemMessage": "=You are an AI Customer Response Agent.\n\nYour job is to write a professional and personalized email response to a lead based on their information and qualification result.\n\nAdapt the response based on the lead qualification:\n\nHOT:\nThank the lead, acknowledge their need, and encourage them to move forward with a clear next step, such as scheduling a call.\n\nWARM:\nThank the lead, acknowledge their request, and politely ask for any missing information needed to better understand their requirements.\n\nCOLD:\nThank the lead for reaching out, acknowledge their interest, and provide a friendly response without applying pressure.\n\nImportant rules:\n- Do not mention the lead score or internal AI qualification to the customer.\n- Do not mention that you are an AI.\n- Do not invent information.\n- Keep the response professional, natural, concise, and personalized.\n- Return only the email body."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        -96
+      ],
+      "id": "1b5daa13-cf61-4bb3-9c56-efa11a8f83e1",
+      "name": "Responses Generation Agent"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9852353e-11ba-466a-9584-73d95452a591",
+              "name": "Name",
+              "value": "={{ $json['your name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "dcfc6e76-58a3-4261-b926-c157a1ab3587",
+              "name": "Email",
+              "value": "={{ $json['Your Email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "fd23fd2a-0db6-462f-a064-ee3804724354",
+              "name": "problem",
+              "value": "={{ $json['Tell us about your problem'] }}",
+              "type": "string"
+            },
+            {
+              "id": "8c7c2399-14db-42b1-9593-885f1a02cd44",
+              "name": "Time",
+              "value": "={{ $json['When are you looking to start'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -768,
+        -96
+      ],
+      "id": "824085eb-e17d-4840-90d0-b87a54e685cd",
+      "name": "Prepare Lead Data"
     },
     {
       "parameters": {
@@ -324,37 +393,37 @@
             {
               "id": "44ebdecc-69e7-4c35-92e6-9f1a90955981",
               "name": "Lead Score",
-              "value": "={{ $('AI Agent').item.json.output.lead_score }}",
+              "value": "={{ $('Lead Qualification Agent').item.json.output.lead_score }}",
               "type": "number"
             },
             {
               "id": "7eb88879-91c5-4977-9fa7-8899e8da0b98",
               "name": "Qualification",
-              "value": "={{ $('AI Agent').item.json.output.qualification }}",
+              "value": "={{ $('Lead Qualification Agent').item.json.output.qualification }}",
               "type": "string"
             },
             {
               "id": "c3b7ad4b-bd5c-4286-9da3-0c547f093ce3",
               "name": "Buying intent",
-              "value": "={{ $('AI Agent').item.json.output.buying_intent }}",
+              "value": "={{ $('Lead Qualification Agent').item.json.output.buying_intent }}",
               "type": "string"
             },
             {
               "id": "f7ba7a57-0aea-4012-9091-42f1efc05ae6",
               "name": "Key Reason",
-              "value": "={{ $('AI Agent').item.json.output.key_reason }}",
+              "value": "={{ $('Lead Qualification Agent').item.json.output.key_reason }}",
               "type": "string"
             },
             {
               "id": "48a83bb4-17e2-4790-b85d-b88eb5004eb1",
               "name": "Action",
-              "value": "={{ $('AI Agent').item.json.output.recommended_action }}",
+              "value": "={{ $('Lead Qualification Agent').item.json.output.recommended_action }}",
               "type": "string"
             },
             {
               "id": "4c9503b1-a2e6-45da-8e97-2fabc2f94c28",
               "name": "Email-Subject",
-              "value": "=={{ \n  ($json.output?.qualification || $('AI Agent').item.json.output?.qualification || '').toString().toLowerCase().includes('hot') \n    ? '🔥 URGENT: Hot Lead - Immediate Follow-up Required!' \n    : (($json.output?.qualification || $('AI Agent').item.json.output?.qualification || '').toString().toLowerCase().includes('warm') \n        ? '⚡ Warm Lead - Follow up ASAP' \n        : '❄️ Cold Lead - Follow up when available') \n}}",
+              "value": "=={{ \n  ($json.output?.qualification || $('Lead Qualification Agent').item.json.output?.qualification || '').toString().toLowerCase().includes('hot') \n    ? '🔥 URGENT: Hot Lead - Immediate Follow-up Required!' \n    : (($json.output?.qualification || $('Lead Qualification Agent').item.json.output?.qualification || '').toString().toLowerCase().includes('warm') \n        ? '⚡ Warm Lead - Follow up ASAP' \n        : '❄️ Cold Lead - Follow up when available') \n}}",
               "type": "string"
             }
           ]
@@ -364,80 +433,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -288,
+        -320,
         -96
       ],
       "id": "8cf3b79c-e443-48c0-bc26-08813594b99f",
-      "name": "Edit Fields1"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Write an email response to this lead based on the following information:\n\nName: {{ $json['         Name'] }}\nEmail: {{ $json['          Email'] }}\nProblem: {{ $json['                                    Problem'] }}\nTime: {{ $json['          Time'] }}\nQualification: {{ $json['    Qualification'] }}\nLead Score: {{ $json['    Lead Score'] }}\nBuying Intent: {{ $json['   Buying Intent'] }}\nKey Reason: {{ $json['  Key Reason'] }}\nEmail-Subject: {{ $json['Email-Subject'] }}",
-        "options": {
-          "systemMessage": "=You are an AI Customer Response Agent.\n\nYour job is to write a professional and personalized email response to a lead based on their information and qualification result.\n\nAdapt the response based on the lead qualification:\n\nHOT:\nThank the lead, acknowledge their need, and encourage them to move forward with a clear next step, such as scheduling a call.\n\nWARM:\nThank the lead, acknowledge their request, and politely ask for any missing information needed to better understand their requirements.\n\nCOLD:\nThank the lead for reaching out, acknowledge their interest, and provide a friendly response without applying pressure.\n\nImportant rules:\n- Do not mention the lead score or internal AI qualification to the customer.\n- Do not mention that you are an AI.\n- Do not invent information.\n- Keep the response professional, natural, concise, and personalized.\n- Return only the email body."
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        48,
-        -96
-      ],
-      "id": "1b5daa13-cf61-4bb3-9c56-efa11a8f83e1",
-      "name": "AI Agent1"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gpt-4o-mini",
-          "mode": "list",
-          "cachedResultName": "gpt-4o-mini"
-        },
-        "builtInTools": {},
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
-      "position": [
-        -48,
-        80
-      ],
-      "id": "b97c345e-5dec-4759-a4f5-7ac976aeb4c7",
-      "name": "OpenAI Chat Model1",
-      "credentials": {
-        "openAiApi": {
-          "id": "BIXCmLqUyzEJqfHK",
-          "name": "OpenAI account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "sendTo": "={{ $('Edit Fields1').item.json.Email }}",
-        "subject": "=We've received your request, {{ $('Edit Fields1').item.json.Name }}",
-        "emailType": "text",
-        "message": "={{ $json.output }}",
-        "options": {
-          "appendAttribution": false
-        }
-      },
-      "type": "n8n-nodes-base.gmail",
-      "typeVersion": 2.2,
-      "position": [
-        304,
-        -96
-      ],
-      "id": "3c3c6c93-39d2-46a1-8681-24376ec84ef2",
-      "name": "Send a message",
-      "webhookId": "d1878189-0cd3-4bbc-a773-79e9ce8bb90e",
-      "credentials": {
-        "gmailOAuth2": {
-          "id": "zDEymUvsZ6kXrFAG",
-          "name": "Gmail account"
-        }
-      }
+      "name": "Prepare Ai Respone"
     }
   ],
   "pinData": {},
@@ -446,18 +446,7 @@
       "main": [
         [
           {
-            "node": "Edit Fields",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
+            "node": "Prepare Lead Data",
             "type": "main",
             "index": 0
           }
@@ -468,7 +457,7 @@
       "ai_outputParser": [
         [
           {
-            "node": "AI Agent",
+            "node": "Lead Qualification Agent",
             "type": "ai_outputParser",
             "index": 0
           }
@@ -479,30 +468,8 @@
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent",
+            "node": "Lead Qualification Agent",
             "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Edit Fields1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Edit Fields1": {
-      "main": [
-        [
-          {
-            "node": "Append row in sheet",
-            "type": "main",
             "index": 0
           }
         ]
@@ -512,7 +479,7 @@
       "main": [
         [
           {
-            "node": "AI Agent1",
+            "node": "Responses Generation Agent",
             "type": "main",
             "index": 0
           }
@@ -523,18 +490,51 @@
       "ai_languageModel": [
         [
           {
-            "node": "AI Agent1",
+            "node": "Responses Generation Agent",
             "type": "ai_languageModel",
             "index": 0
           }
         ]
       ]
     },
-    "AI Agent1": {
+    "Lead Qualification Agent": {
+      "main": [
+        [
+          {
+            "node": "Prepare Ai Respone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responses Generation Agent": {
       "main": [
         [
           {
             "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Lead Qualification Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Ai Respone": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
             "type": "main",
             "index": 0
           }
@@ -548,7 +548,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "3acfd03e-49cc-4e7a-8b77-fb0362f5b970",
+  "versionId": "ab59c21b-0227-45a1-872d-90a3030fa990",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "a7943b160f7f9235aedeba07a55ec8e10a3d7886ace4db56aa99a7779f1f79b7"
